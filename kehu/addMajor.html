@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>洗衣店管理系统 - 订单列表</title>
+   <link rel="stylesheet" href="../lib/layui-v2.6.3/css/layui.css"  media="all">
+   <link rel="stylesheet" href="../css/layuimini.css"  media="all">
+    <style>
+        .layui-container { margin-top: 20px; }
+        .page-title { font-size: 18px; font-weight: 600; margin-bottom: 15px; color: #333; }
+        .table-container { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 15px; }
+        .search-bar { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #f2f2f2; }
+        .layui-table th { text-align: center; }
+        .layui-table td { text-align: center; vertical-align: middle; }
+        .customer-type { padding: 2px 8px; border-radius: 4px; font-size: 12px; color: #fff; }
+        .type-new { background-color: #1E9FFF; }
+        .type-regular { background-color: #009688; }
+        .type-vip { background-color: #FFB800; }
+        .order-status { padding: 2px 8px; border-radius: 4px; font-size: 12px; color: #fff; }
+        .status-completed { background-color: #009688; }
+        .status-processing { background-color: #FFB800; }
+        .status-pending { background-color: #FF5722; }
+        .empty-data { text-align: center; padding: 50px 0; color: #999; }
+    </style>
+</head>
+<body class="layui-bg-gray">
+    <div class="layui-container">
+        <div class="page-title">订单管理</div>
+        
+        <div class="table-container">
+            <!-- 搜索栏 -->
+            <div class="search-bar layui-form">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">搜索</label>
+                        <div class="layui-input-inline" style="width: 200px;">
+                            <input type="text" name="searchKeyword" placeholder="请输入姓名或手机号" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    
+                    <div class="layui-inline">
+                        <label class="layui-form-label">客户类型</label>
+                        <div class="layui-input-inline">
+                            <select name="searchCustomerType">
+                                <option value="">全部</option>
+                                <option value="新顾客">新顾客</option>
+                                <option value="普通顾客">普通顾客</option>
+                                <option value="VIP顾客">VIP顾客</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="layui-inline">
+                        <label class="layui-form-label">订单状态</label>
+                        <div class="layui-input-inline">
+                            <select name="searchOrderStatus">
+                                <option value="">全部</option>
+                                <option value="已完成">已完成</option>
+                                <option value="进行中">进行中</option>
+                                <option value="未完成">未完成</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="layui-inline">
+                        <button class="layui-btn layui-btn-normal" lay-submit lay-filter="searchBtn">
+                            <i class="layui-icon"></i> 搜索
+                        </button>
+                        <button type="button" class="layui-btn layui-btn-primary" id="resetBtn">
+                            重置
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 订单列表表格（仅保留必要列） -->
+            <table class="layui-table" lay-size="sm">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">ID</th>
+                        <th>客户姓名</th>
+                        <th>客户类型</th>
+                        <th>订单状态</th>
+                        <th>衣物类型</th>
+                        <th>接收日期</th>
+                        <th>手机号码</th>
+                        <th style="width: 80px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="orderTableBody">
+                    <tr><td colspan="8" class="empty-data">加载中...</td></tr>
+                </tbody>
+            </table>
+            
+            <!-- 分页控件 -->
+            <div id="pagination" style="text-align: right; margin-top: 15px;"></div>
+        </div>
+    </div>
+
+   <script src="../lib/layui-v2.6.3/layui.js"></script>
+    <script>
+        layui.use(['laypage', 'layer', 'form', 'jquery'], function() {
+            var laypage = layui.laypage;
+            var layer = layui.layer;
+            var form = layui.form;
+            var $ = layui.jquery;
+            
+            // 全局变量
+            var currentPage = 1;       // 当前页码
+            var pageSize = 10;         // 每页条数
+            var totalCount = 0;        // 总记录数
+            var allOrders = [];        // 所有订单数据
+            var filteredOrders = [];   // 筛选后的订单数据
+            
+            // 页面加载时初始化
+            $(function() {
+                loadOrderData();
+                initEventListeners();
+            });
+            
+            // 从user.json文件加载订单数据
+            function loadOrderData() {
+                // 显示加载动画
+                var loadingIndex = layer.load(2);
+                
+                // 加载同文件夹下的user.json文件
+                $.getJSON('user.json')
+                    .done(function(response) {
+                        // 关闭加载动画
+                        layer.close(loadingIndex);
+                        
+                        // 检查返回数据格式是否正确
+                        if (response.code === 0 && Array.isArray(response.data)) {
+                            allOrders = response.data;
+                            filteredOrders = [...allOrders];
+                            
+                            // 渲染表格和分页
+                            renderOrderTable();
+                            renderPagination();
+                        } else {
+                            layer.msg('数据格式不正确', {icon: 2});
+                            $('#orderTableBody').html('<tr><td colspan="8" class="empty-data">数据格式不正确</td></tr>');
+                        }
+                    })
+                    .fail(function(xhr, status, error) {
+                        // 关闭加载动画
+                        layer.close(loadingIndex);
+                        
+                        // 加载失败处理
+                        console.error('加载数据失败:', error);
+                        $('#orderTableBody').html('<tr><td colspan="8" class="empty-data">加载数据失败，请检查user.json文件是否存在</td></tr>');
+                        layer.msg('加载数据失败', {icon: 2});
+                    });
+            }
+            
+            // 渲染订单表格（仅显示必要列）
+            function renderOrderTable() {
+                var tableBody = $('#orderTableBody');
+                tableBody.empty();
+                
+                // 计算当前页的数据
+                var startIndex = (currentPage - 1) * pageSize;
+                var endIndex = startIndex + pageSize;
+                var currentPageData = filteredOrders.slice(startIndex, endIndex);
+                
+                if (currentPageData.length === 0) {
+                    // 没有数据时显示空状态
+                    tableBody.append('<tr><td colspan="8" class="empty-data">暂无订单数据</td></tr>');
+                    return;
+                }
+                
+                // 遍历数据生成表格行（仅包含必要列）
+                currentPageData.forEach(function(order) {
+                    var tr = $('<tr></tr>');
+                    tr.append(`<td>${order.id}</td>`);
+                    tr.append(`<td>${order.realname}</td>`);
+                    
+                    // 客户类型标签
+                    var typeClass = order.deptname === '新顾客' ? 'type-new' : 
+                                   order.deptname === '普通顾客' ? 'type-regular' : 'type-vip';
+                    tr.append(`<td><span class="customer-type ${typeClass}">${order.deptname}</span></td>`);
+                    
+                    // 订单状态标签
+                    var statusClass = order.majorname === '已完成' ? 'status-completed' : 
+                                     order.majorname === '进行中' ? 'status-processing' : 'status-pending';
+                    tr.append(`<td><span class="order-status ${statusClass}">${order.majorname}</span></td>`);
+                    
+                    tr.append(`<td>${order.classname}</td>`);
+                    tr.append(`<td>${order.grade}</td>`);
+                    tr.append(`<td>${order.telephone}</td>`);
+                    
+                    // 操作按钮
+                    tr.append(`
+                        <td>
+                            <button class="layui-btn layui-btn-xs" onclick="viewOrder('${order.id}')">查看</button>
+                        </td>
+                    `);
+                    
+                    tableBody.append(tr);
+                });
+            }
+            
+            // 渲染分页控件
+            function renderPagination() {
+                totalCount = filteredOrders.length;
+                
+                laypage.render({
+                    elem: 'pagination',
+                    count: totalCount,
+                    limit: pageSize,
+                    curr: currentPage,
+                    layout: ['prev', 'page', 'next', 'count', 'limit'],
+                    limits: [5, 10, 20],
+                    jump: function(obj, first) {
+                        // 首次不执行
+                        if (!first) {
+                            currentPage = obj.curr;
+                            pageSize = obj.limit;
+                            renderOrderTable();
+                        }
+                    }
+                });
+            }
+            
+            // 初始化事件监听器
+            function initEventListeners() {
+                // 搜索按钮
+                form.on('submit(searchBtn)', function(data) {
+                    var keyword = data.field.searchKeyword.trim().toLowerCase();
+                    var customerType = data.field.searchCustomerType;
+                    var orderStatus = data.field.searchOrderStatus;
+                    
+                    // 根据搜索条件筛选数据
+                    filteredOrders = allOrders.filter(function(order) {
+                        // 关键词匹配（姓名或手机号）
+                        var keywordMatch = !keyword || 
+                                          order.realname.toLowerCase().includes(keyword) || 
+                                          order.telephone.includes(keyword);
+                        
+                        // 客户类型匹配
+                        var typeMatch = !customerType || order.deptname === customerType;
+                        
+                        // 订单状态匹配
+                        var statusMatch = !orderStatus || order.majorname === orderStatus;
+                        
+                        return keywordMatch && typeMatch && statusMatch;
+                    });
+                    
+                    // 重置页码并重新渲染
+                    currentPage = 1;
+                    renderOrderTable();
+                    renderPagination();
+                    
+                    return false;
+                });
+                
+                // 重置按钮
+                $('#resetBtn').click(function() {
+                    // 重置表单
+                    form.val('searchForm', {
+                        searchKeyword: '',
+                        searchCustomerType: '',
+                        searchOrderStatus: ''
+                    });
+                    
+                    // 重置筛选条件
+                    filteredOrders = [...allOrders];
+                    currentPage = 1;
+                    renderOrderTable();
+                    renderPagination();
+                });
+            }
+            
+            // 查看订单详情（仅显示必要信息）
+            window.viewOrder = function(id) {
+                var order = allOrders.find(item => item.id.toString() === id);
+                if (!order) return;
+                
+                // 构建详情HTML（仅包含必要列）
+                var detailHtml = `
+                    <div class="layui-form">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">订单ID</label>
+                            <div class="layui-input-block">
+                                <input type="text" value="${order.id}" class="layui-input" disabled>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">客户姓名</label>
+                            <div class="layui-input-block">
+                                <input type="text" value="${order.realname}" class="layui-input" disabled>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">客户类型</label>
+                            <div class="layui-input-block">
+                                <input type="text" value="${order.deptname}" class="layui-input" disabled>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">订单状态</label>
+                            <div class="layui-input-block">
+                                <input type="text" value="${order.majorname}" class="layui-input" disabled>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">衣物类型</label>
+                            <div class="layui-input-block">
+                                <input type="text" value="${order.classname}" class="layui-input" disabled>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">接收日期</label>
+                            <div class="layui-input-block">
+                                <input type="text" value="${order.grade}" class="layui-input" disabled>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">手机号码</label>
+                            <div class="layui-input-block">
+                                <input type="text" value="${order.telephone}" class="layui-input" disabled>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // 打开详情弹窗
+                layer.open({
+                    type: 1,
+                    title: '订单详情',
+                    area: ['500px', 'auto'],
+                    content: detailHtml,
+                    btn: ['关闭'],
+                    btnAlign: 'c'
+                });
+            };
+        });
+    </script>
+</body>
+</html>
+    

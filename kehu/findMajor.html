@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>客户管理系统 - 演示</title>
+   <link rel="stylesheet" href="../lib/layui-v2.6.3/css/layui.css"  media="all">
+   <link rel="stylesheet" href="../css/layuimini.css"  media="all">
+    <style>
+        /* 基础样式 */
+        body { background-color: #f5f7fa; }
+        .container { width: 1000px; margin: 30px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow: hidden; }
+        .page-header { padding: 18px 25px; border-bottom: 1px solid #eee; }
+        .page-title { font-size: 19px; font-weight: 600; color: #333; }
+        
+        /* 列表视图样式 */
+        .list-view { padding: 20px 25px; }
+        .search-bar { margin-bottom: 15px; display: flex; gap: 10px; align-items: center; }
+        .layui-table { margin-bottom: 15px; }
+        .layui-table th { text-align: center; background-color: #f8f9fa; }
+        .layui-table td { text-align: center; }
+        .operation-btn { margin: 0 3px; }
+        .selected-row { background-color: #FFF5F5 !important; }
+        
+        /* 删除确认视图样式 */
+        .delete-view { padding: 25px; display: none; }
+        .delete-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee; color: #C41E3A; display: flex; align-items: center; }
+        .delete-title i { margin-right: 8px; }
+        .customer-info { padding: 18px; margin: 20px 0; background: #FFF5F5; border-radius: 6px; border-left: 4px solid #C41E3A; }
+        .info-item { line-height: 30px; margin-bottom: 10px; font-size: 14px; display: flex; }
+        .info-label { width: 110px; color: #666; font-weight: 500; }
+        .info-value { flex: 1; color: #333; }
+        .warn-text { color: #C41E3A; margin: 15px 0; line-height: 24px; font-weight: 500; display: flex; align-items: center; }
+        .warn-text i { margin-right: 8px; }
+        .btn-group { text-align: center; margin-top: 25px; }
+        .delete-btn { background-color: #C41E3A !important; border-color: #C41E3A !important; }
+        
+        /* 切换按钮 */
+        .view-toggle { margin-bottom: 20px; display: flex; gap: 10px; }
+        .toggle-btn { background-color: #f2f2f2; }
+        .toggle-btn.active { background-color: #009688; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <div class="page-title">客户管理系统</div>
+        </div>
+        
+        <!-- 视图切换按钮 -->
+        <div class="list-view" style="padding-bottom: 0;">
+            <div class="view-toggle">
+                <button class="layui-btn toggle-btn active" id="showListBtn">客户列表</button>
+                <button class="layui-btn toggle-btn" id="showDeleteBtn">删除确认</button>
+            </div>
+        </div>
+        
+        <!-- 客户列表视图（选择功能演示） -->
+        <div class="list-view" id="listView">
+            <div class="search-bar">
+                <input type="text" name="search" placeholder="输入客户姓名或手机号搜索" class="layui-input" style="width: 300px;">
+                <button class="layui-btn">搜索</button>
+                <button class="layui-btn layui-btn-primary">重置</button>
+            </div>
+            
+            <table class="layui-table" lay-size="sm">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>客户姓名</th>
+                        <th>客户类型</th>
+                        <th>订单状态</th>
+                        <th>衣物类型</th>
+                        <th>接收日期</th>
+                        <th>手机号码</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>10000</td>
+                        <td>张三</td>
+                        <td>新顾客</td>
+                        <td>已完成</td>
+                        <td>羊毛</td>
+                        <td>2025.8.9</td>
+                        <td>13545678767</td>
+                        <td>
+                            <button class="layui-btn layui-btn-danger layui-btn-xs operation-btn select-btn">选择删除</button>
+                        </td>
+                    </tr>
+                    <tr class="selected-row">
+                        <td>10001</td>
+                        <td>王五</td>
+                        <td>普通顾客</td>
+                        <td>已完成</td>
+                        <td>羊绒</td>
+                        <td>2025.9.9</td>
+                        <td>13834523412</td>
+                        <td>
+                            <button class="layui-btn layui-btn-danger layui-btn-xs operation-btn select-btn">选择删除</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>10002</td>
+                        <td>李四</td>
+                        <td>普通顾客</td>
+                        <td>未完成</td>
+                        <td>聚酯纤维</td>
+                        <td>2025.9.10</td>
+                        <td>13545678767</td>
+                        <td>
+                            <button class="layui-btn layui-btn-danger layui-btn-xs operation-btn select-btn">选择删除</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>10003</td>
+                        <td>张三</td>
+                        <td>普通顾客</td>
+                        <td>进行中</td>
+                        <td>羽绒</td>
+                        <td>2025.9.11</td>
+                        <td>18045678767</td>
+                        <td>
+                            <button class="layui-btn layui-btn-danger layui-btn-xs operation-btn select-btn">选择删除</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="layui-box layui-laypage layui-laypage-default">
+                <a href="javascript:;" class="layui-laypage-prev">上一页</a>
+                <span class="layui-laypage-curr"><em class="layui-laypage-em"></em><em>1</em></span>
+                <a href="javascript:;">2</a>
+                <a href="javascript:;">3</a>
+                <a href="javascript:;" class="layui-laypage-next">下一页</a>
+            </div>
+        </div>
+        
+        <!-- 删除确认视图 -->
+        <div class="delete-view" id="deleteView">
+            <div class="delete-title">
+                <i class="layui-icon layui-icon-delete"></i> 客户信息删除
+            </div>
+
+            <div class="customer-info">
+                <div class="info-item">
+                    <span class="info-label">客户ID：</span>
+                    <span class="info-value">10001</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">客户姓名：</span>
+                    <span class="info-value">王五</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">客户类型：</span>
+                    <span class="info-value">普通顾客</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">订单状态：</span>
+                    <span class="info-value">已完成</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">衣物类型：</span>
+                    <span class="info-value">羊绒</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">接收日期：</span>
+                    <span class="info-value">2025.9.9</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">手机号码：</span>
+                    <span class="info-value">13834523412</span>
+                </div>
+            </div>
+
+            <div class="warn-text">
+                <i class="layui-icon layui-icon-warning"></i>
+                警告：此操作将永久删除该客户的所有信息，删除后无法恢复，请务必确认！
+            </div>
+
+            <div class="btn-group">
+                <button class="layui-btn delete-btn">
+                    <i class="layui-icon layui-icon-delete"></i> 确认删除
+                </button>
+                <button class="layui-btn layui-btn-primary" id="backToListBtn">
+                    <i class="layui-icon layui-icon-return"></i> 返回列表
+                </button>
+            </div>
+        </div>
+    </div>
+
+     <script src="../lib/layui-v2.6.3/layui.js"></script>
+    <script>
+        // 仅用于演示视图切换和选择效果，无实际业务逻辑
+        layui.use(['jquery'], function() {
+            var $ = layui.jquery;
+            
+            // 视图切换
+            $('#showListBtn').click(function() {
+                $('#listView').show();
+                $('#deleteView').hide();
+                $('.toggle-btn').removeClass('active');
+                $(this).addClass('active');
+            });
+            
+            $('#showDeleteBtn, .select-btn').click(function() {
+                $('#listView').hide();
+                $('#deleteView').show();
+                $('.toggle-btn').removeClass('active');
+                $('#showDeleteBtn').addClass('active');
+            });
+            
+            $('#backToListBtn').click(function() {
+                $('#listView').show();
+                $('#deleteView').hide();
+                $('.toggle-btn').removeClass('active');
+                $('#showListBtn').addClass('active');
+            });
+            
+            // 选择效果演示
+            $('.select-btn').click(function() {
+                // 移除其他行的选中状态
+                $('.layui-table tbody tr').removeClass('selected-row');
+                // 给当前行添加选中状态
+                $(this).closest('tr').addClass('selected-row');
+            });
+        });
+    </script>
+</body>
+</html>
+    

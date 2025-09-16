@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>员工业绩统计模块</title>
+    <!-- 仅依赖LayUI核心库，确保轻量 -->
+   <link rel="stylesheet" href="../lib/layui-v2.6.3/css/layui.css"  media="all">
+   <link rel="stylesheet" href="../css/layuimini.css"  media="all">
+    <style>
+        /* 基础布局：简洁背景+居中容器 */
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+            margin: 0;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        .stat-module {
+            max-width: 900px;
+            margin: 0 auto;
+            gap: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 标题样式：突出主题，无冗余装饰 */
+        .module-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* 筛选区：紧凑布局，仅保留核心筛选项 */
+        .filter-bar {
+            background: #fff;
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-label {
+            font-size: 14px;
+            color: #666;
+            white-space: nowrap;
+        }
+        .layui-select {
+            width: 160px;
+        }
+
+        /* 核心指标卡片：横向排列，直观展示总览 */
+        .kpi-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .kpi-card {
+            flex: 1;
+            min-width: 180px;
+            background: #fff;
+            padding: 18px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .kpi-name {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2f4050;
+            margin-bottom: 5px;
+        }
+        .kpi-trend {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .trend-up {
+            color: #00a65a;
+        }
+        .trend-down {
+            color: #ed5565;
+        }
+
+        /* 横向柱状图：聚焦员工个体业绩对比 */
+        .chart-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .chart-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        /* 横向柱状图主体 */
+        .horizontal-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .bar-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .bar-name {
+            width: 80px;
+            font-size: 14px;
+            color: #666;
+            text-align: right;
+        }
+        .bar-wrap {
+            flex: 1;
+            height: 30px;
+            background: #f0f2f5;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        .bar-fill {
+            height: 100%;
+            background: #1E9FFF;
+            border-radius: 15px;
+            transition: width 0.5s ease;
+        }
+        .bar-value {
+            width: 80px;
+            font-size: 14px;
+            color: #333;
+            text-align: left;
+        }
+
+        /* 响应式适配：小屏幕调整布局 */
+        @media (max-width: 768px) {
+            .kpi-cards {
+                flex-direction: column;
+            }
+            .bar-name, .bar-value {
+                width: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stat-module">
+        <!-- 模块标题 -->
+        <div class="module-title">员工业绩统计（本月）</div>
+
+        <!-- 筛选区域：仅保留核心筛选项 -->
+        <div class="filter-bar layui-form">
+            <div class="filter-item">
+                <span class="filter-label">统计周期</span>
+                <select class="layui-select" id="time-period">
+                    <option value="month" selected>本月</option>
+                    <option value="quarter">本季度</option>
+                    <option value="year">本年</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <span class="filter-label">部门</span>
+                <select class="layui-select" id="dept-filter">
+                    <option value="all" selected>全部部门</option>
+                    <option value="sales">销售部</option>
+                    <option value="service">客服部</option>
+                    <option value="operation">运营部</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <button class="layui-btn layui-btn-normal" id="refresh-btn">
+                    刷新数据
+                </button>
+            </div>
+        </div>
+
+        <!-- 核心指标卡片：总览关键数据 -->
+        <div class="kpi-cards">
+            <div class="kpi-card">
+                <div class="kpi-name">本月总销售额</div>
+                <div class="kpi-value">¥428,600</div>
+                <div class="kpi-trend trend-up">
+                    <i class="layui-icon"></i> 较上月增长 9.2%
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-name">本月总订单量</div>
+                <div class="kpi-value">168 单</div>
+                <div class="kpi-trend trend-up">
+                    <i class="layui-icon"></i> 较上月增长 11.5%
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-name">本月平均客单价</div>
+                <div class="kpi-value">¥2,551</div>
+                <div class="kpi-trend trend-down">
+                    <i class="layui-icon"></i> 较上月下降 1.8%
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-name">达标员工数</div>
+                <div class="kpi-value">8 人</div>
+                <div class="kpi-trend trend-up">
+                    <i class="layui-icon"></i> 较上月增加 2 人
+                </div>
+            </div>
+        </div>
+
+        <!-- 横向柱状图：员工业绩对比（核心可视化） -->
+        <div class="chart-container">
+            <div class="chart-title">员工销售额排名（单位：元）</div>
+            <div class="horizontal-bar" id="performance-chart">
+                <!-- 柱状图数据：通过JS动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- LayUI核心JS：仅用于基础交互 -->
+   <script src="../lib/layui-v2.6.3/layui.js"></script>
+    <script>
+        layui.use(['form', 'layer'], function() {
+            var form = layui.form;
+            var layer = layui.layer;
+
+            // 1. 业绩数据：可替换为后端接口返回数据
+            var performanceData = [
+                { name: '张三', dept: '销售部', sales: 68500, rate: 114 }, // rate=完成率（%）
+                { name: '李四', dept: '销售部', sales: 56200, rate: 94 },
+                { name: '王五', dept: '运营部', sales: 49800, rate: 83 },
+                { name: '赵某', dept: '客服部', sales: 45300, rate: 76 },
+                { name: '孙某', dept: '客服部', sales: 39800, rate: 66 },
+                { name: '李某', dept: '运营部', sales: 35600, rate: 59 },
+                { name: '华某', dept: '销售部', sales: 32100, rate: 53 },
+                { name: '郑某', dept: '客服部', sales: 28700, rate: 48 }
+            ];
+
+            // 2. 渲染横向柱状图
+            function renderChart(data) {
+                var chartContainer = document.getElementById('performance-chart');
+                chartContainer.innerHTML = ''; // 清空容器
+
+                // 计算最大销售额（用于设置柱子宽度比例）
+                var maxSales = Math.max(...data.map(item => item.sales));
+
+                // 遍历数据生成柱状图
+                data.forEach(item => {
+                    var barWidth = Math.round((item.sales / maxSales) * 100); // 宽度比例（%）
+                    var salesFormatted = item.sales.toLocaleString(); // 格式化金额（千分位）
+                    
+                    // 生成柱状图项
+                    var barItem = document.createElement('div');
+                    barItem.className = 'bar-item';
+                    barItem.innerHTML = `
+                        <div class="bar-name">${item.name}</div>
+                        <div class="bar-wrap">
+                            <div class="bar-fill" style="width: ${barWidth}%;" 
+                                 title="${item.dept} | 完成率：${item.rate}%"></div>
+                        </div>
+                        <div class="bar-value">${salesFormatted}</div>
+                    `;
+                    chartContainer.appendChild(barItem);
+                });
+            }
+
+            // 3. 刷新按钮事件
+            document.getElementById('refresh-btn').addEventListener('click', function() {
+                var loading = layer.load(2, { shade: [0.1, '#fff'] });
+                
+                // 模拟数据加载延迟（实际项目中替换为接口请求）
+                setTimeout(function() {
+                    layer.close(loading);
+                    
+                    // 模拟数据波动（±5%）
+                    var updatedData = performanceData.map(item => {
+                        var fluctuate = 0.95 + Math.random() * 0.1; // 95%~105%随机波动
+                        return {
+                            ...item,
+                            sales: Math.round(item.sales * fluctuate),
+                            rate: Math.round(item.rate * fluctuate)
+                        };
+                    });
+                    
+                    // 重新排序（按销售额降序）
+                    updatedData.sort((a, b) => b.sales - a.sales);
+                    
+                    // 重新渲染图表
+                    renderChart(updatedData);
+                    layer.msg('数据已刷新', { icon: 1, time: 1200 });
+                }, 800);
+            });
+
+            // 4. 部门筛选事件
+            document.getElementById('dept-filter').addEventListener('change', function() {
+                var selectedDept = this.value;
+                var filteredData = selectedDept === 'all' 
+                    ? performanceData 
+                    : performanceData.filter(item => item.dept === selectedDept);
+                
+                // 筛选后重新排序并渲染
+                filteredData.sort((a, b) => b.sales - a.sales);
+                renderChart(filteredData);
+            });
+
+            // 5. 初始化：渲染图表+表单
+            renderChart(performanceData);
+            form.render();
+        });
+    </script>
+</body>
+</html>

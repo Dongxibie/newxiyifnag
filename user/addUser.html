@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>洗衣店管理系统</title>
+		<link rel="stylesheet" href="../lib/layui-v2.6.3/css/layui.css"  media="all">
+		<link rel="stylesheet" href="../css/layuimini.css"  media="all">
+	</head>
+	<body>
+		<div>
+			<!-- 查询条件开始 -->
+			<fieldset class="table-search-fieldset">
+				<legend>搜索信息</legend>
+				<div style="margin: 10px 10px 10px 10px">
+					<form class="layui-form layui-form-pane" action="">
+						<div class="layui-form-item">
+							<div class="layui-inline">
+								<label class="layui-form-label">姓名</label>
+								<div class="layui-input-inline">
+									<input type="text" name="realName" placeholder="请输入姓名" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">客户类型</label>
+								<div class="layui-input-inline">
+									<select >
+										<option value="1" selected>新顾客</option>
+										<option value="2">普通顾客</option>
+										<option value="3">VIP顾客</option>
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">洗衣状态</label>
+								<div class="layui-input-inline">
+									<select >
+										<option value="1" selected>已完成</option>
+										<option value="2">未完成</option>
+										<option value="3">进行中</option>
+									</select>
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">衣物类型</label>
+								<div class="layui-input-inline">
+									<input type="text" name="classname" placeholder="请输入衣物类型" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">日期</label>
+								<div class="layui-input-inline">
+									<input id="year" type="text" name="grade" placeholder="请选择日期" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<button type="submit" class="layui-btn layui-btn-primary"  lay-submit lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 索</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</fieldset> 	
+		<script type="text/html" id="studentTableToolbar">
+			<div class="layui-btn-container">
+				<!-- 这里的lay-event="add"和delete在后面的JS代码中要用 -->
+				<button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="add"> 添加用户 </button>
+				<button class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn" lay-event="delete"> 批量删除 </button>
+			</div>
+		</script> <!--工具栏设置结束-->
+		<!-- 数据表格定义，先隐藏起来，内容由后面的JS代码动态产生；lay-filter="studentTableFilter"在后面的JS代码里用 -->
+		<table class="layui-hide" id="studentTable" lay-filter="studentTableFilter"></table>
+		<!--用户状态列（看表格预览效果），id="userStatus"是程序员自定，后面JS中用-->
+		<script type="text/html" id="userStatus">
+			<input type="checkbox" name="status"  checked lay-skin="switch" lay-text="在店|不在店" lay-event="open" lay-filter="modifystatus" {{ d.status == '1'? 'checked' : '' }}/>
+		</script>
+		<!-- 定义表格最后一列：操作 ；lay-event="detail"、 lay-event="edit"、lay-event="delete"后面JS会用到-->
+		<script type="text/html" id="studentTableOperation">
+			<a class="layui-btn layui-btn-normal layui-btn-xs data-count-edit" lay-event="detail">查看详情</a>
+			<a class="layui-btn  layui-btn-xs data-count-edit" lay-event="edit">修改</a>
+			<a class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="delete">删除</a>
+		</script>
+		
+		<script src="../lib/layui-v2.6.3/layui.js"></script>	
+		 <script>
+		 	// 使用Layui的表单、表格和弹窗模块
+		 	layui.use(['form', 'table', 'layer', 'laydate'], function () {
+		 		var $ = layui.jquery;     // 获得jQuery
+		 			form = layui.form;    // 获得表单模块
+		 			table = layui.table;  // 获得表格模块
+		 			layer = layui.layer;  // 获得弹窗模块
+					laydate = layui.laydate; // 获得日期模块
+					
+					// 初始化日期选择器
+					laydate.render({
+						elem: '#year',
+						range: false, // 不开启日期范围选择
+						format: 'yyyy-MM-dd' // 日期格式
+					});
+		 			
+		         //渲染表格，也就是设置表格
+		 		table.render({
+		 			elem: '#studentTable', // 上面表格的id
+		 						url: 'user.json', // 使用模拟数据接口
+		 			toolbar: '#studentTableToolbar', // 工具栏的id，上面定义的 ；不写的话工具栏不会出现
+		 			defaultToolbar: ['filter', 'exports', 'print', {
+		 				title: '提示',
+		 				layEvent: 'LAYTABLE_TIPS',
+		 				icon: 'layui-icon-tips'
+		 			}],
+		 			cols: [[ // 列定义
+		 				{type: "checkbox", width: 50},
+		 				{field: 'id', width: 80, title: 'ID', sort: true},
+		 				{field: 'realname', width: 80, title: '姓名'},
+		 				{field: 'deptname', width: 180, title: '客户类型'},
+		 				{field: 'majorname', width:160, title: '洗衣状态'},
+		 				{field: 'classname', title: '衣物类型', width: 100},
+		 				{field: 'grade', width: 100, title: '日期', sort: true},
+		 				{field: 'telephone', width: 120, title: '手机号码'},
+		 				{
+		 					field : 'status',
+		 					width:150,
+		 					title : '用户状态',
+		 					templet : '#userStatus', // 上面用户状态列定义的id：userStatus
+		 					unresize : true,
+		 					align: "center"
+		 				},					
+		 				{title: '操作', minWidth: 130, toolbar: '#studentTableOperation', align: "center"}
+		 			]],
+		 			limits: [10, 15, 20], // 每页显示条数切换
+		 			limit: 15, // 每页默认显示15条数据
+		 			page: true, // 不写的话，分页显示不会显示
+		 			skin: 'line' // 表格有边框
+		 		});
+		 		
+		 		// 搜索按钮点击事件
+		 		form.on('submit(data-search-btn)', function (data) {
+		 			layer.open({
+		 				type: 1,
+		 				title: '搜索提示',
+		 				content: '<div style="padding: 20px;">正在执行搜索，搜索条件：<br>' + JSON.stringify(data.field) + '</div>',
+		 				area: ['400px', '200px'],
+		 				btn: ['确定']
+		 			});
+		 			return false; // 阻止表单默认提交
+		 		});
+		 		
+		 		// 工具栏按钮点击事件
+		 		table.on('toolbar(studentTableFilter)', function (obj) {
+		 			switch (obj.event) {
+		 				case 'add':
+		 					layer.open({
+		 						type: 1,
+		 						title: '添加用户',
+		 						content: '<div style="padding: 20px;">此功能用于添加新用户信息</div>',
+		 						area: ['400px', '200px'],
+		 						btn: ['确定', '取消']
+		 					});
+		 					break;
+		 				case 'delete':
+		 					var checkStatus = table.checkStatus('studentTable');
+		 					if (checkStatus.data.length === 0) {
+		 						layer.open({
+		 							type: 1,
+		 							title: '提示',
+		 							content: '<div style="padding: 20px;">请先选择要删除的用户</div>',
+		 							area: ['300px', '150px'],
+		 							btn: ['确定']
+		 						});
+		 					} else {
+		 						layer.open({
+		 							type: 1,
+		 							title: '批量删除',
+		 							content: '<div style="padding: 20px;">确定要删除选中的 ' + checkStatus.data.length + ' 条记录吗？</div>',
+		 							area: ['400px', '200px'],
+		 							btn: ['确定', '取消'],
+		 							btn1: function(index) {
+		 								layer.close(index);
+		 								layer.open({
+		 									type: 1,
+		 									title: '操作结果',
+		 									content: '<div style="padding: 20px;">已成功删除选中的记录</div>',
+		 									area: ['300px', '150px'],
+		 									btn: ['确定']
+		 								});
+		 							}
+		 						});
+		 					}
+		 					break;
+		 				case 'LAYTABLE_TIPS':
+		 					layer.open({
+		 						type: 1,
+		 						title: '提示信息',
+		 						content: '<div style="padding: 20px;">这是洗衣店管理系统的数据表格，用于展示和管理客户信息</div>',
+		 						area: ['400px', '200px'],
+		 						btn: ['确定']
+		 					});
+		 					break;
+		 			}
+		 		});
+		 		
+		 		// 表格行内操作按钮点击事件
+		 		table.on('tool(studentTableFilter)', function (obj) {
+		 			var data = obj.data; // 获得当前行数据
+		 			switch (obj.event) {
+		 				case 'detail':
+		 					layer.open({
+		 						type: 1,
+		 						title: '查看详情',
+		 						content: '<div style="padding: 20px;">' +
+		 									'<p>ID: ' + data.id + '</p>' +
+		 									'<p>姓名: ' + data.realname + '</p>' +
+		 									'<p>客户类型: ' + data.deptname + '</p>' +
+		 									'<p>洗衣状态: ' + data.majorname + '</p>' +
+		 									'<p>衣物类型: ' + data.classname + '</p>' +
+		 									'<p>日期: ' + data.grade + '</p>' +
+		 									'<p>手机号码: ' + data.telephone + '</p>' +
+		 									'<p>状态: ' + (data.status === '1' ? '在店' : '不在店') + '</p>' +
+		 								'</div>',
+		 						area: ['400px', '300px'],
+		 						btn: ['确定']
+		 					});
+		 					break;
+		 				case 'edit':
+		 					layer.open({
+		 						type: 1,
+		 						title: '修改信息',
+		 						content: '<div style="padding: 20px;">正在修改 ID 为 ' + data.id + ' 的用户信息</div>',
+		 						area: ['400px', '200px'],
+		 						btn: ['保存', '取消']
+		 					});
+		 					break;
+		 				case 'delete':
+		 					layer.open({
+		 						type: 1,
+		 						title: '删除确认',
+		 						content: '<div style="padding: 20px;">确定要删除 ID 为 ' + data.id + ' 的用户信息吗？</div>',
+		 						area: ['400px', '200px'],
+		 						btn: ['确定', '取消'],
+		 						btn1: function(index) {
+		 							layer.close(index);
+		 							obj.del(); // 删除对应行（tr）的DOM结构
+		 							layer.open({
+		 								type: 1,
+		 								title: '操作结果',
+		 								content: '<div style="padding: 20px;">已成功删除选中的记录</div>',
+		 								area: ['300px', '150px'],
+		 								btn: ['确定']
+		 							});
+		 						}
+		 					});
+		 					break;
+		 				case 'open':
+		 					var newStatus = data.status === '1' ? '0' : '1';
+		 					var statusText = newStatus === '1' ? '在店' : '不在店';
+		 					layer.open({
+		 						type: 1,
+		 						title: '状态修改',
+		 						content: '<div style="padding: 20px;">用户状态已修改为：' + statusText + '</div>',
+		 						area: ['300px', '150px'],
+		 						btn: ['确定']
+		 					});
+		 					// 更新数据状态
+		 					obj.update({
+		 						status: newStatus
+		 					});
+		 					break;
+		 			}
+		 		});
+		 		
+		 	}); // use函数结束 
+		 
+		 </script>
+	</body>
+</html>

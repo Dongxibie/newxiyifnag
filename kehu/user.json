@@ -1,0 +1,119 @@
+{
+  "code": 0,
+  "msg": "",
+  "count": 1000,
+  "data": [
+    {
+      "id": 10000,
+      "realname": "张三",
+      "deptname": "新顾客",
+      "majorname": "已完成",
+      "classname": "羊毛",
+      "grade": "2025.8.9",
+      "telephone": "13545678767",
+      "qq": "89789878",
+      "job": "团支部书记",
+      "status": "启用"
+    },
+    {
+      "id": 10001,
+      "realname": "王五",
+      "deptname": "普通顾客",
+      "majorname": "已完成",
+      "classname": "羊绒",
+      "grade": "2025.9.9",
+      "telephone": "13834523412",
+      "qq": "34234576",
+      "job": "班长",
+      "status":"启用"
+    },{
+      "id": 10002,
+      "realname": "李四",
+      "deptname": "普通顾客",
+      "majorname": "未完成",
+      "classname": "聚酯纤维",
+      "grade": "2025.9.10",
+      "telephone": "13545678767",
+      "qq": "89789878",
+      "job": "团支部书记",
+      "status": "启用"
+    },{
+      "id": 10003,
+      "realname": "张三",
+      "deptname": "普通顾客",
+      "majorname": "进行中",
+      "classname": "羽绒",
+      "grade": "2025.9.11",
+      "telephone": "18045678767",
+      "qq": "23789878",
+      "job": "团支部书记",
+      "status":"启用"
+    },{
+      "id": 10004,
+      "realname": "张三",
+      "deptname": "VIP顾客",
+      "majorname": "进行中",
+      "classname": "鸭绒",
+      "grade": "2025.9.12",
+      "telephone": "13545678767",
+      "qq": "89789878",
+      "job": "团支部书记",
+      "status": "禁用"
+    },{
+      "id": 10004,
+      "realname": "张三",
+      "deptname": "VIP顾客",
+      "majorname": "进行中",
+      "classname": "鸭绒",
+      "grade": "2025.9.12",
+      "telephone": "13545678767",
+      "qq": "89789878",
+      "job": "团支部书记",
+      "status": "禁用"
+    },{
+      "id": 10004,
+      "realname": "张三",
+      "deptname": "VIP顾客",
+      "majorname": "进行中",
+      "classname": "鸭绒",
+      "grade": "2025.9.12",
+      "telephone": "13545678767",
+      "qq": "89789878",
+      "job": "团支部书记",
+      "status": "禁用"
+    },{
+      "id": 10004,
+      "realname": "张三",
+      "deptname": "VIP顾客",
+      "majorname": "进行中",
+      "classname": "鸭绒",
+      "grade": "2025.9.12",
+      "telephone": "13545678767",
+      "qq": "89789878",
+      "job": "团支部书记",
+      "status": "禁用"
+    },{
+      "id": 10004,
+      "realname": "张三",
+      "deptname": "VIP顾客",
+      "majorname": "进行中",
+      "classname": "鸭绒",
+      "grade": "2025.9.12",
+      "telephone": "13545678767",
+      "qq": "89789878",
+      "job": "团支部书记",
+      "status": "禁用"
+    },{
+      "id": 10004,
+      "realname": "张三",
+      "deptname": "VIP顾客",
+      "majorname": "进行中",
+      "classname": "鸭绒",
+      "grade": "2025.9.12",
+      "telephone": "13545678767",
+      "qq": "89789878",
+      "job": "团支部书记",
+      "status": "禁用"
+    }
+  ]
+}

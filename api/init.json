@@ -1,0 +1,156 @@
+{
+  "homeInfo": {
+    "title": "首页",
+    "href": "page/home.html"
+  },
+  "logoInfo": {
+    "title": "洗衣房管理",
+    "image": "images/logo.png",
+    "href": ""
+  },
+  "menuInfo": [
+    {
+      "title": "常规管理",
+      "icon": "fa fa-address-book",
+      "href": "",
+      "target": "_self",
+      "child": [
+        {
+          "title": "首页",
+          "href": "/page/home.html",
+          "icon": "fa fa-home",
+          "target": "_self"
+        },
+        {
+          "title": "订单状态管理",
+          "href": "",
+          "icon": "fa fa-group",
+          "target": "_self",
+          "child": [
+          {
+            "title": "查询账单信息",
+            "href": "user/addUser.html",
+            "icon": "fa fa-plus-square-o",
+            "target": "_self"
+          }, {
+            "title": "标记状态",
+            "href": "user/findUser.html",
+            "icon": "fa fa-search",
+            "target": "_self"
+          }
+        ]
+        },
+        {
+          "title": "客户信息管理",
+          "href": "",
+          "icon": "fa fa-institution",
+          "target": "_self",
+          "child": [
+            {
+              "title": "添加客户",
+              "href": "kehu/addDept.html",
+              "icon": "fa fa-plus-square-o",
+              "target": "_self"
+            }, {
+              "title": "查看客户列表",
+              "href": "kehu/addMajor.html",
+              "icon": "fa fa-plus-circle",
+              "target": "_self"
+            }, {
+              "title": "编辑客户信息",
+              "href": "kehu/findDept.html",
+              "icon": "fa fa-search",
+              "target": "_self"
+            }, {
+              "title": "删除客户记录",
+              "href": "kehu/findMajor.html",
+              "icon": "fa fa-search-plus",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "员工管理",
+          "href": "",
+          "icon": "fa fa-male",
+          "target": "_self",
+          "child": [
+            {
+              "title": "添加新员工",
+              "href": "yuangong/addMember.html",
+              "icon": "fa fa-plus-circle",
+              "target": "_self"
+            }, {
+              "title": "查询员工状态",
+              "href": "yuangong/findMember.html",
+              "icon": "fa fa-search-plus",
+              "target": "_self"
+            }, {
+              "title": "员工业绩统计",
+              "href": "yuangong/statisMember.html",
+              "icon": "fa fa-bar-chart",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "费用计算",
+          "href": "",
+          "icon": "fa fa-trophy",
+          "target": "_self",
+          "child": [
+            {
+              "title": "计算客户账单",
+              "href": "feiyong/addCompet.html",
+              "icon": "fa fa-plus-square-o",
+              "target": "_self"
+            }, {
+              "title": "修改折扣内容",
+              "href": "feiyong/findCompet.html",
+              "icon": "fa fa-search",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "订单登记管理",
+          "href": "",
+          "icon": "fa fa-paw",
+          "target": "_self",
+          "child": [
+            {
+              "title": "新洗涤订单登录",
+              "href": "dengji/addCredit.html",
+              "icon": "fa fa-plus-circle",
+              "target": "_self"
+            }, {
+              "title": "客户预存金额",
+              "href": "dengji/findCredit.html",
+              "icon": "fa fa-search-plus",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "账号管理",
+          "href": "",
+          "icon": "fa fa-eye",
+          "target": "_self",
+          "child": [
+            {
+              "title": "新增员工账号",
+              "href": "zhanghao/addClass.html",
+              "icon": "fa fa-plus-square-o",
+              "target": "_self"
+            }, {
+              "title": "个人信息管理",
+              "href": "zhanghao/findClass.html",
+              "icon": "fa fa-search",
+              "target": "_self"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

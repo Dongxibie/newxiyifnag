@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>洗衣房订单登记</title>
+ <link rel="stylesheet" href="../lib/layui-v2.6.3/css/layui.css"  media="all">
+ <link rel="stylesheet" href="../css/layuimini.css"  media="all">
+    <style>
+        body {
+            background-color: #f5f7fa;
+            padding: 15px;
+            margin: 0;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            padding: 15px;
+            background-color: #393D49;
+            color: #fff;
+            font-size: 18px;
+            text-align: center;
+        }
+        
+        .content {
+            padding: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #e6e6e6;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            margin: 20px 0 10px;
+            color: #333;
+            padding-left: 5px;
+            border-left: 3px solid #1E9FFF;
+        }
+        
+        /* 衣物选择列表样式 */
+        .clothes-options {
+            border: 1px solid #e6e6e6;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        
+        .clothes-option {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .clothes-option:last-child {
+            border-bottom: none;
+        }
+        
+        .clothes-info {
+            flex: 1;
+        }
+        
+        .clothes-name {
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .clothes-service {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+        
+        .clothes-quantity {
+            display: flex;
+            align-items: center;
+        }
+        
+        .quantity-btn {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #e6e6e6;
+            background-color: #f5f5f5;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .quantity-display {
+            width: 40px;
+            height: 24px;
+            border-top: 1px solid #e6e6e6;
+            border-bottom: 1px solid #e6e6e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 8px;
+            border-radius: 4px;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .save-btn {
+            background-color: #1E9FFF;
+            color: #fff;
+        }
+        
+        .reset-btn {
+            background-color: #f5f5f5;
+            color: #666;
+        }
+        
+        /* 订单详情弹窗 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .modal-title {
+            font-size: 16px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-body {
+            margin-bottom: 15px;
+        }
+        
+        .modal-footer {
+            text-align: right;
+        }
+        
+        .close-btn {
+            padding: 6px 15px;
+            background-color: #1E9FFF;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">洗衣房订单登记</div>
+        
+        <div class="content">
+            <!-- 客户信息 -->
+            <div class="form-group">
+                <label class="form-label">客户姓名 *</label>
+                <input type="text" class="form-control" id="customerName" placeholder="请输入姓名">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">联系电话 *</label>
+                <input type="tel" class="form-control" id="customerPhone" placeholder="请输入电话">
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <label class="form-label">送件日期 *</label>
+                    <input type="date" class="form-control" id="dropoffDate">
+                </div>
+                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <label class="form-label">取件日期 *</label>
+                    <input type="date" class="form-control" id="pickupDate">
+                </div>
+            </div>
+            
+            <!-- 衣物选择列表 -->
+            <div class="section-title">选择衣物（点击加减按钮调整数量）</div>
+            <div class="clothes-options" id="clothesOptions">
+                <div class="clothes-option" data-id="1" data-name="衬衫" data-service="普通洗+熨烫">
+                    <div class="clothes-info">
+                        <div class="clothes-name">衬衫</div>
+                        <div class="clothes-service">普通洗+熨烫</div>
+                    </div>
+                    <div class="clothes-quantity">
+                        <div class="quantity-btn minus">-</div>
+                        <div class="quantity-display">0</div>
+                        <div class="quantity-btn plus">+</div>
+                    </div>
+                </div>
+                
+                <div class="clothes-option" data-id="2" data-name="T恤" data-service="普通洗">
+                    <div class="clothes-info">
+                        <div class="clothes-name">T恤</div>
+                        <div class="clothes-service">普通洗</div>
+                    </div>
+                    <div class="clothes-quantity">
+                        <div class="quantity-btn minus">-</div>
+                        <div class="quantity-display">0</div>
+                        <div class="quantity-btn plus">+</div>
+                    </div>
+                </div>
+                
+                <div class="clothes-option" data-id="3" data-name="裤子" data-service="普通洗+熨烫">
+                    <div class="clothes-info">
+                        <div class="clothes-name">裤子</div>
+                        <div class="clothes-service">普通洗+熨烫</div>
+                    </div>
+                    <div class="clothes-quantity">
+                        <div class="quantity-btn minus">-</div>
+                        <div class="quantity-display">0</div>
+                        <div class="quantity-btn plus">+</div>
+                    </div>
+                </div>
+                
+                <div class="clothes-option" data-id="4" data-name="外套" data-service="干洗">
+                    <div class="clothes-info">
+                        <div class="clothes-name">外套</div>
+                        <div class="clothes-service">干洗</div>
+                    </div>
+                    <div class="clothes-quantity">
+                        <div class="quantity-btn minus">-</div>
+                        <div class="quantity-display">0</div>
+                        <div class="quantity-btn plus">+</div>
+                    </div>
+                </div>
+                
+                <div class="clothes-option" data-id="5" data-name="毛衣" data-service="轻柔洗">
+                    <div class="clothes-info">
+                        <div class="clothes-name">毛衣</div>
+                        <div class="clothes-service">轻柔洗</div>
+                    </div>
+                    <div class="clothes-quantity">
+                        <div class="quantity-btn minus">-</div>
+                        <div class="quantity-display">0</div>
+                        <div class="quantity-btn plus">+</div>
+                    </div>
+                </div>
+                
+                <div class="clothes-option" data-id="6" data-name="鞋子" data-service="鞋类清洗">
+                    <div class="clothes-info">
+                        <div class="clothes-name">鞋子</div>
+                        <div class="clothes-service">鞋类清洗</div>
+                    </div>
+                    <div class="clothes-quantity">
+                        <div class="quantity-btn minus">-</div>
+                        <div class="quantity-display">0</div>
+                        <div class="quantity-btn plus">+</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 备注 -->
+            <div class="form-group">
+                <label class="form-label">备注</label>
+                <textarea class="form-control" id="remark" rows="2" placeholder="请输入备注信息（如污渍位置、特殊要求等）"></textarea>
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div class="btn-group">
+                <button class="btn reset-btn" id="resetBtn">重置</button>
+                <button class="btn save-btn" id="saveBtn">保存订单</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 订单详情弹窗 -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-title">订单详情</div>
+            <div class="modal-body" id="detailContent"></div>
+            <div class="modal-footer">
+                <button class="close-btn" id="closeDetailBtn">确认</button>
+            </div>
+        </div>
+    </div>
+
+   <script src="../lib/layui-v2.6.3/layui.js"></script>
+    <script>
+        layui.use(['layer'], function() {
+            var layer = layui.layer;
+            
+            // 元素获取
+            const clothesOptions = document.getElementById('clothesOptions');
+            const saveBtn = document.getElementById('saveBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const detailModal = document.getElementById('detailModal');
+            const detailContent = document.getElementById('detailContent');
+            const closeDetailBtn = document.getElementById('closeDetailBtn');
+            
+            // 订单ID计数器
+            let orderId = 1;
+            
+            // 数量调整功能
+            clothesOptions.addEventListener('click', function(e) {
+                const target = e.target;
+                if (target.classList.contains('plus') || target.classList.contains('minus')) {
+                    const quantityDisplay = target.parentElement.querySelector('.quantity-display');
+                    let quantity = parseInt(quantityDisplay.textContent) || 0;
+                    
+                    if (target.classList.contains('plus')) {
+                        quantity++;
+                    } else if (target.classList.contains('minus') && quantity > 0) {
+                        quantity--;
+                    }
+                    
+                    quantityDisplay.textContent = quantity;
+                }
+            });
+            
+            // 生成订单号
+            function generateOrderNo() {
+                const date = new Date();
+                const year = date.getFullYear().toString().slice(2);
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const day = date.getDate().toString().padStart(2, '0');
+                return `XD${year}${month}${day}${orderId.toString().padStart(2, '0')}`;
+            }
+            
+            // 保存订单
+            saveBtn.addEventListener('click', function() {
+                const name = document.getElementById('customerName').value.trim();
+                const phone = document.getElementById('customerPhone').value.trim();
+                const dropoffDate = document.getElementById('dropoffDate').value;
+                const pickupDate = document.getElementById('pickupDate').value;
+                const remark = document.getElementById('remark').value.trim();
+                
+                // 验证必填项
+                if (!name || !phone || !dropoffDate || !pickupDate) {
+                    layer.msg('带*的为必填项', { icon: 2 });
+                    return;
+                }
+                
+                // 收集已选择的衣物（数量>0的）
+                const selectedClothes = [];
+                document.querySelectorAll('.clothes-option').forEach(option => {
+                    const quantity = parseInt(option.querySelector('.quantity-display').textContent) || 0;
+                    if (quantity > 0) {
+                        selectedClothes.push({
+                            name: option.getAttribute('data-name'),
+                            service: option.getAttribute('data-service'),
+                            quantity: quantity
+                        });
+                    }
+                });
+                
+                // 验证是否选择了衣物
+                if (selectedClothes.length === 0) {
+                    layer.msg('请至少选择一种衣物', { icon: 2 });
+                    return;
+                }
+                
+                // 创建订单号
+                const orderNo = generateOrderNo();
+                orderId++;
+                
+                // 构建订单详情
+                let clothesHtml = '<div style="margin-bottom:10px;"><strong>衣物信息：</strong></div>';
+                selectedClothes.forEach((item, index) => {
+                    clothesHtml += `<div style="margin-bottom:5px;">${index+1}. ${item.name}（${item.service}）- ${item.quantity}件</div>`;
+                });
+                
+                // 显示订单详情
+                detailContent.innerHTML = `
+                    <div style="margin-bottom:10px;"><strong>订单号：</strong>${orderNo}</div>
+                    <div style="margin-bottom:10px;"><strong>客户信息：</strong>${name}（${phone}）</div>
+                    <div style="margin-bottom:10px;"><strong>日期：</strong>送件 ${dropoffDate} / 取件 ${pickupDate}</div>
+                    ${clothesHtml}
+                    ${remark ? `<div style="margin-top:10px;"><strong>备注：</strong>${remark}</div>` : ''}
+                    <div style="margin-top:10px; font-size:12px; color:#999;">登记时间：${new Date().toLocaleString()}</div>
+                `;
+                
+                // 显示弹窗
+                detailModal.style.display = 'flex';
+                
+                // 重置表单
+                resetForm();
+            });
+            
+            // 重置表单
+            function resetForm() {
+                document.getElementById('customerName').value = '';
+                document.getElementById('customerPhone').value = '';
+                document.getElementById('remark').value = '';
+                
+                // 重置所有衣物数量为0
+                document.querySelectorAll('.quantity-display').forEach(display => {
+                    display.textContent = '0';
+                });
+            }
+            
+            // 重置按钮事件
+            resetBtn.addEventListener('click', resetForm);
+            
+            // 关闭详情弹窗
+            closeDetailBtn.addEventListener('click', function() {
+                detailModal.style.display = 'none';
+            });
+            
+            // 点击弹窗外部关闭
+            detailModal.addEventListener('click', function(e) {
+                if (e.target === detailModal) {
+                    detailModal.style.display = 'none';
+                }
+            });
+            
+            // 初始化日期
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dropoffDate').value = today;
+            
+            // 初始化取件日期为后天
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 2);
+            document.getElementById('pickupDate').value = tomorrow.toISOString().split('T')[0];
+        });
+    </script>
+</body>
+</html>
+    

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>洗衣店管理系统 - 新员工登录</title>
+    <!-- 引入Layui CSS -->
+
+   <link rel="stylesheet" href="../lib/layui-v2.6.3/css/layui.css"  media="all">
+   <link rel="stylesheet" href="../css/layuimini.css"  media="all">
+    <style>
+        body {
+            background-color: #f2f2f2;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .login-title {
+            font-size: 24px;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 5px; /* 增加标题与副标题间距 */
+        }
+        .login-subtitle {
+            color: #666;
+        }
+        .layui-form-item {
+            margin-bottom: 20px;
+        }
+        .layui-form-label {
+            width: 48px;
+            padding: 9px 0;
+            text-align: center;
+        }
+        .layui-input-block {
+            margin-left: 48px;
+        }
+        .login-btn {
+            width: 100%;
+            height: 42px;
+            font-size: 16px;
+        }
+        .login-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 12px;
+        }
+        .login-links a {
+            color: #1E9FFF;
+        }
+        .login-links a:hover {
+            color: #009688;
+        }
+        .form-feedback {
+            display: none;
+            margin-top: 5px;
+            font-size: 12px;
+            padding-left: 10px;
+        }
+        .success-feedback {
+            color: #009688;
+        }
+        .error-feedback {
+            color: #FF5722;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <!-- 已移除图标 -->
+            <div class="login-title">洗衣店管理系统</div>
+            <div class="login-subtitle">新员工账号登录</div>
+        </div>
+        
+        <form class="layui-form" lay-filter="loginForm">
+            <div class="layui-form-item">
+                <label class="layui-form-label">
+                    <i class="fa fa-user"></i>
+                </label>
+                <div class="layui-input-block">
+                    <input type="text" name="username" placeholder="请输入员工编号" autocomplete="off" 
+                           class="layui-input" lay-verify="required|username" lay-reqtext="员工编号不能为空">
+                    <div class="form-feedback error-feedback" id="usernameError"></div>
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">
+                    <i class="fa fa-lock"></i>
+                </label>
+                <div class="layui-input-block">
+                    <input type="password" name="password" placeholder="请输入密码" autocomplete="off" 
+                           class="layui-input" lay-verify="required|password" lay-reqtext="密码不能为空">
+                    <div class="form-feedback error-feedback" id="passwordError"></div>
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">
+                    <i class="fa fa-lock"></i>
+                </label>
+                <div class="layui-input-block">
+                    <input type="password" name="confirmPassword" placeholder="请确认密码" autocomplete="off" 
+                           class="layui-input" lay-verify="required|confirmPassword" lay-reqtext="请确认密码">
+                    <div class="form-feedback error-feedback" id="confirmPasswordError"></div>
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <div class="layui-input-block" style="margin-left: 0;">
+                    <button class="layui-btn login-btn layui-btn-normal" lay-submit lay-filter="loginSubmit">
+                        <i class="fa fa-sign-in"></i> 登录
+                    </button>
+                </div>
+            </div>
+            
+            <div class="login-links">
+                <a href="javascript:;" id="forgetPwd">忘记密码？</a>
+                <a href="javascript:;" id="firstLogin">首次登录指南</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- 引入Layui JS -->
+   <script src="../lib/layui-v2.6.3/layui.js"></script>
+    <script>
+        layui.use(['form', 'layer'], function() {
+            var form = layui.form;
+            var layer = layui.layer;
+            
+            // 自定义验证规则
+            form.verify({
+                username: function(value) {
+                    if (value.length < 4 || value.length > 10) {
+                        return '员工编号长度必须在4-10位之间';
+                    }
+                    if (!/^[A-Za-z0-9]+$/.test(value)) {
+                        return '员工编号只能包含字母和数字';
+                    }
+                },
+                password: function(value) {
+                    if (value.length < 6) {
+                        return '密码长度不能少于6位';
+                    }
+                },
+                confirmPassword: function(value) {
+                    var password = document.getElementsByName('password')[0].value;
+                    if (value !== password) {
+                        return '两次输入的密码不一致';
+                    }
+                }
+            });
+            
+            // 表单提交事件
+            form.on('submit(loginSubmit)', function(data) {
+                // 模拟登录过程
+                layer.load(2); // 显示加载动画
+                
+                setTimeout(function() {
+                    layer.closeAll('loading'); // 关闭加载动画
+                    
+                    // 模拟登录成功（实际应用中这里会有AJAX请求后端验证）
+                    if (data.field.username === 'EMP1001' && data.field.password === '123456') {
+                        layer.msg('登录成功，正在进入系统...', {
+                            icon: 1,
+                            time: 1500
+                        }, function() {
+                            // 登录成功后的跳转逻辑
+                            layer.alert('欢迎回来，新员工！您已成功登录洗衣店管理系统。', {
+                                icon: 6,
+                                title: '登录成功'
+                            });
+                        });
+                    } else {
+                        layer.msg('员工编号或密码错误', {
+                            icon: 2,
+                            time: 1500
+                        });
+                    }
+                }, 1500);
+                
+                return false; // 阻止表单默认提交
+            });
+            
+            // 表单输入验证反馈
+            form.on('blur(username)', function(data) {
+                var errorElement = document.getElementById('usernameError');
+                if (!data.value) {
+                    errorElement.textContent = '员工编号不能为空';
+                    errorElement.style.display = 'block';
+                } else if (data.value.length < 4 || data.value.length > 10) {
+                    errorElement.textContent = '员工编号长度必须在4-10位之间';
+                    errorElement.style.display = 'block';
+                } else if (!/^[A-Za-z0-9]+$/.test(data.value)) {
+                    errorElement.textContent = '员工编号只能包含字母和数字';
+                    errorElement.style.display = 'block';
+                } else {
+                    errorElement.style.display = 'none';
+                }
+            });
+            
+            form.on('blur(password)', function(data) {
+                var errorElement = document.getElementById('passwordError');
+                if (!data.value) {
+                    errorElement.textContent = '密码不能为空';
+                    errorElement.style.display = 'block';
+                } else if (data.value.length < 6) {
+                    errorElement.textContent = '密码长度不能少于6位';
+                    errorElement.style.display = 'block';
+                } else {
+                    errorElement.style.display = 'none';
+                    // 触发确认密码验证
+                    var confirmPwdInput = document.getElementsByName('confirmPassword')[0];
+                    if (confirmPwdInput.value) {
+                        confirmPwdInput.blur();
+                    }
+                }
+            });
+            
+            form.on('blur(confirmPassword)', function(data) {
+                var errorElement = document.getElementById('confirmPasswordError');
+                var password = document.getElementsByName('password')[0].value;
+                
+                if (!data.value) {
+                    errorElement.textContent = '请确认密码';
+                    errorElement.style.display = 'block';
+                } else if (data.value !== password) {
+                    errorElement.textContent = '两次输入的密码不一致';
+                    errorElement.style.display = 'block';
+                } else {
+                    errorElement.style.display = 'none';
+                }
+            });
+            
+            // 忘记密码点击事件
+            document.getElementById('forgetPwd').addEventListener('click', function() {
+                layer.open({
+                    type: 1,
+                    title: '忘记密码',
+                    area: ['350px', '250px'],
+                    content: `
+                        <div style="padding: 20px;">
+                            <p>请联系店长或系统管理员重置您的密码。</p>
+                            <p style="margin-top: 15px;">管理员电话：400-123-4567</p>
+                            <div style="text-align: center; margin-top: 20px;">
+                                <button class="layui-btn layui-btn-primary" onclick="parent.layer.closeAll()">关闭</button>
+                            </div>
+                        </div>
+                    `
+                });
+            });
+            
+            // 首次登录指南点击事件
+            document.getElementById('firstLogin').addEventListener('click', function() {
+                layer.open({
+                    type: 1,
+                    title: '首次登录指南',
+                    area: ['400px', '300px'],
+                    content: `
+                        <div style="padding: 20px;">
+                            <p>1. 您的初始账号为入职时分配的员工编号</p>
+                            <p>2. 初始密码为：123456</p>
+                            <p>3. 首次登录后，请立即修改密码</p>
+                            <p>4. 如遇问题，请联系店长协助</p>
+                            <div style="text-align: center; margin-top: 20px;">
+                                <button class="layui-btn layui-btn-primary" onclick="parent.layer.closeAll()">我知道了</button>
+                            </div>
+                        </div>
+                    `
+                });
+            });
+        });
+    </script>
+</body>
+</html>

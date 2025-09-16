@@ -1,0 +1,273 @@
+++++<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>客户信息编辑</title>
+ <link rel="stylesheet" href="../lib/layui-v2.6.3/css/layui.css"  media="all">
+ <link rel="stylesheet" href="../css/layuimini.css"  media="all">
+    <style>
+        .container { width: 700px; margin: 20px auto; padding: 20px; background: #fff; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .form-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+        .history-panel { margin-top: 25px; padding: 15px; border: 1px dashed #ccc; border-radius: 4px; }
+        .history-item { padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 12px; }
+        .history-item:last-child { border-bottom: none; }
+        .required { color: #FF5722; margin-right: 3px; }
+    </style>
+</head>
+<body class="layui-bg-gray">
+    <div class="container">
+        <div class="form-title">客户信息编辑</div>
+        
+        <!-- 编辑表单 - 包含更多可修改字段 -->
+        <form class="layui-form" lay-filter="editForm">
+            <input type="hidden" name="id" id="customerId">
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="required">*</span>客户姓名</label>
+                <div class="layui-input-block">
+                    <input type="text" name="realname" placeholder="请输入客户姓名" class="layui-input" lay-verify="required">
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="required">*</span>手机号码</label>
+                <div class="layui-input-block">
+                    <input type="text" name="telephone" placeholder="请输入11位手机号码" class="layui-input" lay-verify="required|phone">
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="required">*</span>客户类型</label>
+                <div class="layui-input-block">
+                    <select name="deptname" lay-verify="required">
+                        <option value="">请选择客户类型</option>
+                        <option value="新顾客">新顾客</option>
+                        <option value="普通顾客">普通顾客</option>
+                        <option value="VIP顾客">VIP顾客</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="required">*</span>订单状态</label>
+                <div class="layui-input-block">
+                    <select name="majorname" lay-verify="required">
+                        <option value="">请选择订单状态</option>
+                        <option value="已完成">已完成</option>
+                        <option value="进行中">进行中</option>
+                        <option value="未完成">未完成</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="required">*</span>衣物类型</label>
+                <div class="layui-input-block">
+                    <input type="text" name="classname" placeholder="例如：羊毛大衣、羽绒服、衬衫" class="layui-input" lay-verify="required">
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="required">*</span>接收日期</label>
+                <div class="layui-input-block">
+                    <input type="text" id="receiveDate" name="grade" placeholder="请选择接收日期" class="layui-input" lay-verify="required">
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">客户状态</label>
+                <div class="layui-input-block">
+                    <select name="status">
+                        <option value="启用">启用</option>
+                        <option value="禁用">禁用</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit lay-filter="saveEdit">保存修改</button>
+                    <button type="button" class="layui-btn layui-btn-primary" id="cancel">取消</button>
+                </div>
+            </div>
+        </form>
+        
+        <!-- 修改历史记录 -->
+        <div class="history-panel">
+            <h4 style="margin-top: 0;">修改历史记录</h4>
+            <div id="historyList">
+                <div class="history-item">暂无修改记录</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../lib/layui-v2.6.3/layui.js"></script>
+    <script>
+        layui.use(['form', 'layer', 'laydate', 'jquery'], function () {
+            var $ = layui.jquery,
+                form = layui.form,
+                layer = layui.layer,
+                laydate = layui.laydate;
+            
+            // 全局变量
+            var targetId = getUrlParam('id') || '10000';
+            var originalData = {};  // 原始数据用于对比
+            
+            // 1. 初始化日期选择器
+            laydate.render({
+                elem: '#receiveDate',
+                format: 'yyyy.MM.dd',
+                max: new Date()  // 不允许选择未来日期
+            });
+            
+            // 2. 获取URL参数（从列表页传递客户ID）
+            function getUrlParam(name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+                var r = window.location.search.substr(1).match(reg);
+                return r ? r[2] : null;
+            }
+            
+            // 3. 初始化：加载客户数据
+            function init() {
+                loadCustomerData(targetId);
+                initLocalStorage();
+                loadHistoryRecords();
+            }
+            
+            // 4. 加载客户数据（模拟从user.json获取）
+            function loadCustomerData(id) {
+                // 模拟数据 - 实际项目中从user.json或接口获取
+                var mockData = [
+                    { 
+                        id: '10000', 
+                        realname: '张三', 
+                        telephone: '13545678767', 
+                        deptname: '普通顾客',
+                        majorname: '进行中',
+                        classname: '羊毛大衣',
+                        grade: '2025.09.01',
+                        status: '启用'
+                    },
+                    { 
+                        id: '10001', 
+                        realname: '李四', 
+                        telephone: '13834523412', 
+                        deptname: 'VIP顾客',
+                        majorname: '未完成',
+                        classname: '羽绒服',
+                        grade: '2025.09.05',
+                        status: '启用'
+                    }
+                ];
+                
+                // 查找目标客户数据
+                originalData = mockData.find(item => item.id === id) || {
+                    id: id,
+                    realname: '',
+                    telephone: '',
+                    deptname: '',
+                    majorname: '',
+                    classname: '',
+                    grade: '',
+                    status: '启用'
+                };
+                
+                // 填充表单数据
+                form.val('editForm', originalData);
+            }
+            
+            // 5. 本地存储相关（用于保存修改历史）
+            function initLocalStorage() {
+                if (!localStorage.getItem('customerEdits')) {
+                    localStorage.setItem('customerEdits', JSON.stringify({}));
+                }
+            }
+            
+            function saveToHistory(data) {
+                var storage = JSON.parse(localStorage.getItem('customerEdits'));
+                if (!storage[targetId]) storage[targetId] = { history: [] };
+                
+                // 记录修改时间和修改内容
+                storage[targetId].history.unshift({
+                    time: new Date().toLocaleString(),
+                    data: {...data}
+                });
+                
+                // 限制历史记录数量为5条
+                if (storage[targetId].history.length > 5) {
+                    storage[targetId].history.pop();
+                }
+                
+                localStorage.setItem('customerEdits', JSON.stringify(storage));
+            }
+            
+            function loadHistoryRecords() {
+                var storage = JSON.parse(localStorage.getItem('customerEdits'));
+                var history = storage[targetId]?.history || [];
+                var historyList = $('#historyList');
+                
+                historyList.empty();
+                
+                if (history.length === 0) {
+                    historyList.html('<div class="history-item">暂无修改记录</div>');
+                    return;
+                }
+                
+                // 显示历史记录
+                history.forEach((item, index) => {
+                    var record = $(`
+                        <div class="history-item">
+                            <strong>${index === 0 ? '最新：' : ''}</strong>
+                            ${item.time} - 姓名：${item.data.realname}，状态：${item.data.majorname}
+                        </div>
+                    `);
+                    historyList.append(record);
+                });
+            }
+            
+            // 6. 保存修改
+            form.on('submit(saveEdit)', function (data) {
+                var editedData = data.field;
+                
+                // 检查是否有实际修改
+                if (JSON.stringify(editedData) === JSON.stringify(originalData)) {
+                    layer.msg('未检测到任何修改', { icon: 3 });
+                    return false;
+                }
+                
+                // 保存到历史记录
+                saveToHistory(editedData);
+                
+                // 显示成功消息并更新历史记录
+                layer.msg('修改已保存成功', { icon: 1 }, function() {
+                    loadHistoryRecords();
+                    // 更新原始数据为当前修改后的数据
+                    originalData = {...editedData};
+                });
+                
+                return false;
+            });
+            
+            // 7. 取消按钮
+            $('#cancel').click(function() {
+                layer.confirm('确定要取消吗？未保存的修改将会丢失', {
+                    icon: 3,
+                    title: '提示'
+                }, function(index) {
+                    layer.close(index);
+                    window.location.href = 'order-list.html';
+                });
+            });
+            
+            // 8. 表单验证规则
+            form.verify({
+                phone: [/^1[3-9]\d{9}$/, '请输入正确的11位手机号码']
+            });
+            
+            // 初始化页面
+            init();
+        });
+    </script>
+</body>
+</html>
+    

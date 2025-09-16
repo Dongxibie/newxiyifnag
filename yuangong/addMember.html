@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>添加新员工 - 管理系统</title>
+   <link rel="stylesheet" href="../lib/layui-v2.6.3/css/layui.css"  media="all">
+   <link rel="stylesheet" href="../css/layuimini.css"  media="all">
+    <style>
+        /* 基础布局样式 */
+        body { background-color: #f5f7fa; }
+        .container { 
+            width: 700px; 
+            margin: 40px auto; 
+            padding: 28px; 
+            background: #fff; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08); 
+        }
+        
+        /* 标题样式 */
+        .page-title { 
+            font-size: 19px; 
+            font-weight: 600; 
+            margin-bottom: 25px; 
+            padding-bottom: 12px; 
+            border-bottom: 1px solid #eee; 
+            color: #1E9FFF; 
+            display: flex;
+            align-items: center;
+        }
+        .page-title i { margin-right: 8px; font-size: 20px; }
+        
+        /* 表单样式 */
+        .layui-form-item { margin-bottom: 22px; }
+        .layui-form-label { width: 120px; font-weight: 500; }
+        .layui-input-block { margin-left: 150px; }
+        .layui-form-select dl { max-height: 220px; }
+        
+        /* 按钮区域 */
+        .btn-group { 
+            margin-top: 30px; 
+            text-align: center; 
+        }
+        .layui-btn { margin: 0 10px; padding: 0 25px; }
+        
+        /* 必填标记 */
+        .required-mark { color: #FF5722; margin-left: 3px; }
+        
+        /* 提示信息 */
+        .form-hint { color: #666; font-size: 12px; margin-top: 5px; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 页面标题 -->
+        <div class="page-title">
+            <i class="layui-icon layui-icon-user-add"></i> 添加新员工
+        </div>
+
+        <!-- 添加员工表单 -->
+        <form class="layui-form" lay-filter="addStaffForm">
+            <!-- 员工姓名（必填） -->
+            <div class="layui-form-item">
+                <label class="layui-form-label">员工姓名<span class="required-mark">*</span></label>
+                <div class="layui-input-block">
+                    <input type="text" name="staffName" placeholder="请输入员工姓名" 
+                           class="layui-input" lay-verify="required">
+                    <div class="form-hint">请输入真实姓名，将用于工牌制作</div>
+                </div>
+            </div>
+
+            <!-- 员工性别（必填） -->
+            <div class="layui-form-item">
+                <label class="layui-form-label">员工性别<span class="required-mark">*</span></label>
+                <div class="layui-input-block">
+                    <input type="radio" name="staffGender" value="男" title="男" checked>
+                    <input type="radio" name="staffGender" value="女" title="女">
+                </div>
+            </div>
+
+            <!-- 手机号码（必填） -->
+            <div class="layui-form-item">
+                <label class="layui-form-label">手机号码<span class="required-mark">*</span></label>
+                <div class="layui-input-block">
+                    <input type="text" name="staffPhone" placeholder="请输入11位手机号码" 
+                           class="layui-input" lay-verify="required|phone">
+                    <div class="form-hint">将用于登录系统和接收工作通知</div>
+                </div>
+            </div>
+
+            <!-- 所属部门（必填） -->
+            <div class="layui-form-item">
+                <label class="layui-form-label">所属部门<span class="required-mark">*</span></label>
+                <div class="layui-input-block">
+                    <select name="staffDept" lay-verify="required">
+                        <option value="">请选择部门</option>
+                        <option value="前台接待">前台接待</option>
+                        <option value="洗衣操作">洗衣操作</option>
+                        <option value="客户服务">客户服务</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 职位（必填） -->
+            <div class="layui-form-item">
+                <label class="layui-form-label">职位<span class="required-mark">*</span></label>
+                <div class="layui-input-block">
+                    <select name="staffJob" lay-verify="required">
+                        <option value="">请选择职位</option>
+                        <option value="员工">普通员工</option>
+                        <option value="组长">部门组长</option>
+                        <option value="主管">部门主管</option>
+                       
+                    </select>
+                </div>
+            </div>
+
+            <!-- 入职日期（必填） -->
+            <div class="layui-form-item">
+                <label class="layui-form-label">入职日期<span class="required-mark">*</span></label>
+                <div class="layui-input-block">
+                    <input type="text" name="hireDate" class="layui-input" 
+                           placeholder="请选择入职日期" lay-verify="required" 
+                           onclick="layui.laydate({elem: this})">
+                </div>
+            </div>
+
+            <!-- 员工状态（默认启用） -->
+            <div class="layui-form-item">
+                <label class="layui-form-label">员工状态</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="staffStatus" value="启用" title="启用" checked>
+                    <input type="radio" name="staffStatus" value="禁用" title="禁用">
+                </div>
+            </div>
+
+            <!-- 备注信息 -->
+            <div class="layui-form-item">
+                <label class="layui-form-label">备注信息</label>
+                <div class="layui-input-block">
+                    <textarea name="staffRemark" placeholder="请输入备注信息（选填）" 
+                              class="layui-textarea" rows="3"></textarea>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="layui-form-item">
+                <div class="btn-group">
+                    <button class="layui-btn layui-btn-normal" lay-submit lay-filter="submitAdd">
+                        <i class="layui-icon layui-icon-check"></i> 确认添加
+                    </button>
+                    <button type="reset" class="layui-btn layui-btn-primary">
+                        <i class="layui-icon layui-icon-refresh"></i> 重置表单
+                    </button>
+                    <button type="button" class="layui-btn layui-btn-danger" id="cancelAdd">
+                        <i class="layui-icon layui-icon-return"></i> 取消返回
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script src="../lib/layui-v2.6.3/layui.js"></script>
+    <script>
+        layui.use(['form', 'layer', 'laydate'], function() {
+            var form = layui.form;
+            var layer = layui.layer;
+            var laydate = layui.laydate;
+
+            // 初始化日期选择器
+            laydate.render({
+                elem: 'input[name="hireDate"]'
+                ,format: 'yyyy.MM.dd'
+                ,value: new Date() // 默认当前日期
+            });
+
+            // 表单提交事件（仅演示）
+            form.on('submit(submitAdd)', function(data) {
+                // 模拟表单提交
+                layer.load(2);
+                
+                setTimeout(function() {
+                    layer.closeAll('loading');
+                    layer.msg('新员工添加成功！', {
+                        icon: 1,
+                        time: 1500
+                    }, function() {
+                        // 演示：提交成功后重置表单
+                        document.querySelector('form').reset();
+                        form.render(); // 重新渲染表单
+                    });
+                }, 1000);
+                
+                return false; // 阻止实际提交
+            });
+
+            // 取消按钮事件
+            document.getElementById('cancelAdd').addEventListener('click', function() {
+                layer.confirm('确定要取消添加并返回吗？已填写的内容将被清空', {
+                    icon: 3,
+                    title: '确认取消'
+                }, function(index) {
+                    layer.close(index);
+                    // 演示：返回上一页
+                    window.history.back();
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+    
